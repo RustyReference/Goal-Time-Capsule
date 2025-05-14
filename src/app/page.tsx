@@ -8,6 +8,7 @@ import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc } from "firebase
 export default function Home() {
   const [formData, setFormData] = useState("");
   const [response, setResponse] = useState("");
+//  const []
   const [isLoading, setIsLoading] = useState(false);
 
   // Create collection for the database (Prompt-Response Collection)
@@ -22,12 +23,12 @@ export default function Home() {
     const goalRef = doc(db, "goals", id);
     await deleteDoc(goalRef); 
 
-    // Am I supposed to do anything else?
+    // Continue?
   }
   
   // View a goal
   async function readGoal() {
-     
+    
   }
 
   // Updates the state containing the user-entered prompt
@@ -70,9 +71,9 @@ export default function Home() {
   return (
     <div>
       <Navbar />
-      <section className="flex h-screen w-screen items-center justify-center">
+      <section className="flex h-screen w-screen gap-10 p-10 items-center justify-center">
         <form 
-          className="flex flex-col h-1/5 w-full mx-10 my-auto bg-gray-500/50 rounded-md" 
+          className="flex flex-col grow h-1/5 1/2 my-auto bg-gray-500/50 rounded-md" 
           onSubmit={handleSubmit}
         >
           <textarea
@@ -85,6 +86,9 @@ export default function Home() {
           />
           <button type="submit" className="">Submit</button>
         </form>
+        <div className="h-1/5 p-2 my-auto grow bg-gray-500/50 rounded-md">
+          This is a test
+        </div>
       </section> 
     </div>
   );
