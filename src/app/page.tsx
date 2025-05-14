@@ -10,6 +10,27 @@ export default function Home() {
   const [response, setResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Create collection for the database (Prompt-Response Collection)
+  const prCollection = collection(db, "goals");
+  
+  async function createGoal(response: string) {
+    await addDoc(prCollection, { prompt: formData, response });
+  }
+  
+  // Delete a goal 
+  async function deleteGoal(id: any) {
+    const goalRef = doc(db, "goals", id);
+    await deleteDoc(goalRef); 
+
+    // Am I supposed to do anything else?
+  }
+  
+  // View a goal
+  async function readGoal() {
+     
+  }
+
+  // Updates the state containing the user-entered prompt
   function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setFormData(e.target.value);
     console.log(formData);
@@ -32,8 +53,13 @@ export default function Home() {
       if (!res.ok) {
         throw new Error("Failed to fetch response");
       }
+
       const data = await res.json();
+      console.log(data.message); // Print output for testing
       setResponse(data.message);
+      
+      // Add response to database
+      
     } catch (err) {
       console.error("Error during fetch:", err);
     } finally {
