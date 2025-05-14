@@ -1,29 +1,60 @@
 "use client"
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Navbar from "./Navbar";
 import db from "./firebaseConfig";
 import { collection, getDocs, addDoc, deleteDoc, updateDoc, doc } from "firebase/firestore";
 
+// Define the type for a goal entry
+type GoalEntry = {
+  id: string;
+  prompt: string;
+  response: string;
+  // Add any other fields that your documents have
+};
+
 export default function Home() {
   const [formData, setFormData] = useState("");
   const [response, setResponse] = useState("");
-//  const []
+  const [entries, setEntries] = useState<GoalEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-
+  
   // Create collection for the database (Prompt-Response Collection)
   const prCollection = collection(db, "goals");
+
+  // Function to fetch all entries (documents) from database
+  // and create objects including their fields AND ids
+  const fetchEntries = async () => {
+    try {
+      const querySnapshot = await getDocs(prCollection);
+      const fetchedEntries = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as GoalEntry[];
+      
+      setEntries(fetchedEntries);
+    } catch (error) {
+      console.error("Error fetching entries:", error);
+    }
+  };
   
-  async function createGoal(response: string) {
-    await addDoc(prCollection, { prompt: formData, response });
+  // Load all entries + document ids into app's state in the first render
+  useEffect(() => {
+    fetchEntries();
+  }, []);
+  
+  // Continue?
+  // Creates a goal entry and adds it to the database and app's state
+  async function createGoal(response: string, prompt: string) {
+    const newRef = await addDoc(prCollection, { prompt: formData, response });
+    // Add entry to state
+    setEntries([...entries, { id: newRef.id, prompt, response } as GoalEntry]);
   }
   
   // Delete a goal 
-  async function deleteGoal(id: any) {
+  async function deleteGoal(id: string) {
     const goalRef = doc(db, "goals", id);
     await deleteDoc(goalRef); 
-
-    // Continue?
   }
   
   // View a goal
@@ -34,7 +65,6 @@ export default function Home() {
   // Updates the state containing the user-entered prompt
   function handleChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setFormData(e.target.value);
-    console.log(formData);
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -60,7 +90,7 @@ export default function Home() {
       setResponse(data.message);
       
       // Add response to database
-      
+      await createGoal(data.message, formData);
     } catch (err) {
       console.error("Error during fetch:", err);
     } finally {
