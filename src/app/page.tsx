@@ -1,14 +1,16 @@
 "use client"
 
-import { useEffect, createContext, useContext } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "./Navbar";
-import { useAuth } from "./AuthContext";
+import { useAuth, AuthProvider } from "./AuthContext";
 
-export default function Home() {
-  const router = useRouter();
+function DefaultPage() {
   const user = useAuth();
-
+  const router = useRouter();
+  
+  /** If the user is signed in, then bring the user to the chat page.
+   *  Otherwise, redirec to the login page
+   */
   function reroute() {
     if (!user) {
       router.push("/login");
@@ -18,7 +20,7 @@ export default function Home() {
   }
 
   return (
-    <div className="">
+    <>
       <Navbar />
       <div className="flex justify-center items-center h-screen">
         <button 
@@ -28,6 +30,14 @@ export default function Home() {
           Take Your Next Step
         </button>
       </div>
-    </div>
+    </>
+  );
+}
+
+export default function Home() {
+  return (
+    <AuthProvider>
+      <DefaultPage />
+    </AuthProvider>
   );
 }

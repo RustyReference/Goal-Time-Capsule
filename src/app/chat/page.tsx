@@ -12,8 +12,7 @@ import {
   doc, 
   getDoc 
 } from "firebase/firestore";
-import db from "../firebaseConfig";
-import auth from "../firebaseConfig";
+import { db, auth } from "../firebaseConfig";
 
 // Define the type for a goal entry
 type GoalEntry = {
