@@ -2,18 +2,15 @@
 
 import { useState } from "react";
 import { getDoc, getDocs, setDoc, addDoc, doc } from "firebase/firestore";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { 
+  createUserWithEmailAndPassword, 
+  signInWithEmailAndPassword 
+} from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
 
 type LogData = {
   email: string,
   username: string,
-  password: string
-}
-
-type UserCredentials = {
-  email: string, 
-  username: string, 
   password: string
 }
 
@@ -25,11 +22,11 @@ export default function Login() {
     password: ""
   });
 
-  /** Continue
+  /** 
    * Add a docuement to the database of users
    * @param userCreds the user's credentials
    */
-  async function signUp(userCreds: UserCredentials) {
+  async function signUp(userCreds: LogData) {
     const { email, username, password } = userCreds;
 
     try {
@@ -46,7 +43,22 @@ export default function Login() {
       
       console.log("User created!");
     } catch (error) {
-      console.error("Failed to sign up user: " + error);
+      switch (error) {
+        case "auth/email-already-in-use": 
+          console.log("Email already in use.");
+          break;
+        case 'auth/invalid-email':
+          console.log(`Email address ${logForm.email} is invalid.`);
+          break;
+        case 'auth/operation-not-allowed':
+          console.log(`Error during sign up.`);
+          break;
+        case 'auth/weak-password':
+          console.log('Password is not strong enough. Add additional characters including special characters and numbers.');
+          break;
+        default:
+          console.log("Failed to sign up user: " + error);
+      }
     }
   }
   
@@ -54,18 +66,39 @@ export default function Login() {
    * Allows the user to sign in
    * @param userCreds 
    */
-  async function signIn(userCreds: UserCredentials) {
+  async function signIn(userCreds: LogData) {
     const { email, username, password } = userCreds;
     try {
-      const signInCreds = await signInWithEmailAndPassword(auth, email, password)
+      const signInCreds = await signInWithEmailAndPassword(auth, email, password);
       const user = signInCreds.user;
       
       console.log("Signed in as: " + user.email);
     } catch (error) {
-      console.error("Failed to sign in: " + error);
+      {error === "auth/invald-credential" 
+        ? console.log("Email and password do not match.")
+        : console.log("Failed to sign in: " + error)}
     }
   }
 
+  /**
+   * If the user is logging in and exists, then login,
+   * otherwise sign them up.
+   * @param e event for the form element, but unused
+   */
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    
+    const { email, username, password } = logForm;
+    
+    console.log("Form Data + " + email + "\n" + username + "\n" + password);
+    
+    if (login) {
+      await signIn(logForm);
+    } else {
+       await signUp(logForm);
+    }
+  }
+  
   /**
    * Updates the state storing the form entries
    * @param e Event from the form containing the change
@@ -77,17 +110,7 @@ export default function Login() {
       [name]: value,
     }));    
   }
-
-  // Continue
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    if (login) {
-      // login()
-    } else {
-      // signUp();
-    }
-  }
-
+  
   return (
     <div className="h-screen w-screen flex">
       <form 
