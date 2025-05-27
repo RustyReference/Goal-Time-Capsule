@@ -24,6 +24,12 @@ type GoalEntry = {
 
 // Component for the chat area
 export default function Chat() {
+  // State
+  const [formData, setFormData] = useState("");
+  const [response, setResponse] = useState("");
+  const [entries, setEntries] = useState<GoalEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  
   // Router and authentication
   const router = useRouter();
   const user = useAuth();
@@ -46,16 +52,10 @@ export default function Chat() {
     );
   }
 
-  // State
-  const [formData, setFormData] = useState("");
-  const [response, setResponse] = useState("");
-  const [entries, setEntries] = useState<GoalEntry[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  
   // Create collection for the database (Prompt-Response Collection)
   //const prCollection = collection(db, "users", user!.uid); 
   const prCollection = collection(db, "users", user.uid, "goals");
-    
+
   /**
    * Fetches all goal entry documents from a particular user,
    * pairs the fields with the document's id, and stores
