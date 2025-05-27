@@ -1,20 +1,23 @@
 "use client"
 
 import { useState } from "react";
-import { getDoc, getDocs, setDoc, addDoc, doc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import { setDoc, doc } from "firebase/firestore";
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword 
 } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
+import Navbar from "../Navbar";
 
 type LogData = {
   email: string,
   username: string,
-  password: string
+  password: string,
 }
 
 export default function Login() {
+  const router = useRouter();
   const [login, setLogin] = useState(false);
   const [logForm, setLogForm] = useState<LogData>({
     email: "",
@@ -22,7 +25,7 @@ export default function Login() {
     password: ""
   });
 
-  /** 
+  /**
    * Add a docuement to the database of users
    * @param userCreds the user's credentials
    */
@@ -72,6 +75,7 @@ export default function Login() {
       const signInCreds = await signInWithEmailAndPassword(auth, email, password);
       const user = signInCreds.user;
       
+      router.push("/chat");
       console.log("Signed in as: " + user.email);
     } catch (error) {
       {error === "auth/invald-credential" 
@@ -113,6 +117,7 @@ export default function Login() {
   
   return (
     <div className="h-screen w-screen flex">
+      <Navbar />
       <form 
         className="flex flex-col gap-10 items-center justify-center bg-gray-800 h-1/2 w-1/3 m-auto rounded-md"
         onSubmit={ handleSubmit }

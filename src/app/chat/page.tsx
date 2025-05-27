@@ -1,8 +1,8 @@
 "use client"
 
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "../Navbar";
-import { onAuthStateChanged } from "firebase/auth";
 import {
   collection, 
   getDocs, 
@@ -12,7 +12,8 @@ import {
   doc, 
   getDoc 
 } from "firebase/firestore";
-import { db, auth } from "../firebaseConfig";
+import { db } from "../firebaseConfig";
+import { useAuth } from "../AuthContext";
 
 // Define the type for a goal entry
 type GoalEntry = {
@@ -21,18 +22,45 @@ type GoalEntry = {
   response: string;
 };
 
-// The component for the main page of the website
+// Component for the chat area
 export default function Chat() {
+  // Router and authentication
+  const router = useRouter();
+  const user = useAuth();
+
+  // Anticipate to redirect if not authenticated
+  useEffect(() => {
+    if (user === null) {
+      router.push("/login");
+    }
+  }, [user, router]);
+
+  // Show loading state while checking auth; this will rerender
+  if (user === null) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="bg-gray-500/50 w-1/3 text-center rounded-md p-4">
+          Loading...
+        </div>
+      </div>
+    );
+  }
+
+  // State
   const [formData, setFormData] = useState("");
   const [response, setResponse] = useState("");
   const [entries, setEntries] = useState<GoalEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
   // Create collection for the database (Prompt-Response Collection)
-  const prCollection = collection(db, "goals");
-
-  // Function to fetch all entries (documents) from database
-  // and create objects including their fields AND ids
+  //const prCollection = collection(db, "users", user!.uid); 
+  const prCollection = collection(db, "users", user.uid, "goals");
+    
+  /**
+   * Fetches all goal entry documents from a particular user,
+   * pairs the fields with the document's id, and stores
+   * them in the state of the component.
+   */
   const fetchEntries = async () => {
     try {
       const querySnapshot = await getDocs(prCollection);
@@ -43,7 +71,7 @@ export default function Chat() {
       
       setEntries(fetchedEntries);
     } catch (error) {
-      console.error("Error fetching entries:", error);
+      console.error("Error fetching entries: ", error);
     }
   };
   

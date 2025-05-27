@@ -2,42 +2,29 @@
 
 import { useRouter } from "next/navigation";
 import Navbar from "./Navbar";
-import { useAuth, AuthProvider } from "./AuthContext";
+import { useAuth } from "./AuthContext";
+import { useEffect } from "react";
 
-function DefaultPage() {
+export default function Home() {
   const user = useAuth();
   const router = useRouter();
   
-  /** If the user is signed in, then bring the user to the chat page.
-   *  Otherwise, redirec to the login page
-   */
-  function reroute() {
-    if (!user) {
+  useEffect(() => {
+    if (user === null) {
       router.push("/login");
-    } else {
+    } else if (user) {
       router.push("/chat");
     }
-  }
+  }, [user, router]);
 
   return (
     <>
       <Navbar />
       <div className="flex justify-center items-center h-screen">
-        <button 
-          className="bg-gray-500/50 w-1/3 text-center rounded-md"
-          onClick={ reroute }
-        >
-          Take Your Next Step
-        </button>
+        <div className="bg-gray-500/50 w-1/3 text-center rounded-md p-4">
+          Loading...
+        </div>
       </div>
     </>
-  );
-}
-
-export default function Home() {
-  return (
-    <AuthProvider>
-      <DefaultPage />
-    </AuthProvider>
   );
 }
