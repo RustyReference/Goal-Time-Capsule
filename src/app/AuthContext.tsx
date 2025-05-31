@@ -9,11 +9,11 @@ type Props = {
   children: React.ReactNode;
 }
 
-const AuthContext = createContext<User | null>(null);
+const AuthContext = createContext<User | undefined | null>(undefined);
 export const useAuth = () => useContext(AuthContext);
 
 export function AuthProvider({ children }: Props) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | undefined | null>(undefined);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

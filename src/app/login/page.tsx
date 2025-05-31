@@ -19,6 +19,7 @@ type LogData = {
 export default function Login() {
   const router = useRouter();
   const [login, setLogin] = useState(false);
+  const [logInErr, setLogInErr] = useState(""); 
   const [logForm, setLogForm] = useState<LogData>({
     email: "",
     username: "",
@@ -45,22 +46,24 @@ export default function Login() {
       });
       
       console.log("User created!");
-    } catch (error) {
-      switch (error) {
+    } catch (error: any) {
+      switch (error.code) {
+        /*
+        */
         case "auth/email-already-in-use": 
-          console.log("Email already in use.");
+          setLogInErr("Email already in use.");
           break;
         case 'auth/invalid-email':
-          console.log(`Email address ${logForm.email} is invalid.`);
+          setLogInErr("Invalid email.");
           break;
         case 'auth/operation-not-allowed':
-          console.log(`Error during sign up.`);
+          setLogInErr("Operation not allowed.");
           break;
         case 'auth/weak-password':
-          console.log('Password is not strong enough. Add additional characters including special characters and numbers.');
+          setLogInErr("Choose a password with more special characters and numbers.");
           break;
         default:
-          console.log("Failed to sign up user: " + error);
+          setLogInErr(`${error.code}`);
       }
     }
   }
@@ -77,10 +80,10 @@ export default function Login() {
       
       router.push("/chat");
       console.log("Signed in as: " + user.email);
-    } catch (error) {
+    } catch (error: any) {
       {error === "auth/invald-credential" 
-        ? console.log("Email and password do not match.")
-        : console.log("Failed to sign in: " + error)}
+        ? setLogInErr("Email and password do not match.")
+        : setLogInErr("Failed to sign in: " + error.code)}
     }
   }
 
@@ -91,7 +94,6 @@ export default function Login() {
    */
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    
     const { email, username, password } = logForm;
     
     console.log("Form Data + " + email + "\n" + username + "\n" + password);
@@ -99,7 +101,7 @@ export default function Login() {
     if (login) {
       await signIn(logForm);
     } else {
-       await signUp(logForm);
+      await signUp(logForm);
     }
   }
   
@@ -119,10 +121,15 @@ export default function Login() {
     <div className="h-screen w-screen flex">
       <Navbar />
       <form 
-        className="flex flex-col gap-10 items-center justify-center bg-gray-800 h-1/2 w-1/3 m-auto rounded-md"
+        className="flex flex-col gap-5 items-center justify-center bg-gray-800 h-1/2 w-1/3 m-auto rounded-md"
         onSubmit={ handleSubmit }
       >
-        <label className="text-4xl">{login ? "Log In" : "Sign up"}</label>
+        <label 
+          className="text-4xl"
+        >
+          {login ? "Log In" : "Sign Up"}
+        </label>
+        <label className="text-l text-red-600">{logInErr}</label>
         <div className="loginFields flex flex-col gap-5">
           <div className="emailField">
             <label htmlFor="email">Email</label>
@@ -161,7 +168,11 @@ export default function Login() {
         >
           Submit
         </button>
-        <button className="hover:underline" onClick={ () => setLogin(!login) }>
+        <button 
+          className="hover:underline" 
+          type="button" 
+          onClick={ () => setLogin(!login) }
+        >
           {!login ? "Log in instead" : "Sign up instead"}
         </button>
       </form>

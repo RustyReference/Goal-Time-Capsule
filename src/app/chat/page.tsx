@@ -24,16 +24,16 @@ type GoalEntry = {
 
 // Component for the chat area
 export default function Chat() {
+  // Router and authentication
+  const router = useRouter();
+  const user = useAuth();
+
   // State
   const [formData, setFormData] = useState("");
   const [response, setResponse] = useState("");
   const [entries, setEntries] = useState<GoalEntry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Router and authentication
-  const router = useRouter();
-  const user = useAuth();
-
   // Anticipate to redirect if not authenticated
   useEffect(() => {
     if (user === null) {
@@ -41,7 +41,25 @@ export default function Chat() {
     }
   }, [user, router]);
 
+  // Load all entries + document ids into app's state in the first render
+  useEffect(() => {
+    if (prCollection) {
+      fetchEntries();
+    }
+  }, []); 
+  
   // Show loading state while checking auth; this will rerender
+  if (user === undefined) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="bg-gray-500/50 w-1/3 text-center rounded-md p-4">
+          Loading...
+        </div>
+      </div>
+    );
+  }
+  
+  // Check if the user has been checked already and is still not logged in
   if (user === null) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -53,8 +71,7 @@ export default function Chat() {
   }
 
   // Create collection for the database (Prompt-Response Collection)
-  //const prCollection = collection(db, "users", user!.uid); 
-  const prCollection = collection(db, "users", user.uid, "goals");
+  const prCollection = collection(db, "users", user!.uid, "goals");
 
   /**
    * Fetches all goal entry documents from a particular user,
@@ -75,30 +92,12 @@ export default function Chat() {
     }
   };
   
-  // Load all entries + document ids into app's state in the first render
-  useEffect(() => {
-    fetchEntries();
-  }, []); 
-  
-  // Continue?
   // Creates a goal entry and adds it to the database and app's state
   async function createGoal(response: string, prompt: string) {
     const newRef = await addDoc(prCollection, { prompt: formData, response });
 
     // Add entry to state
     setEntries([...entries, { id: newRef.id, prompt, response } as GoalEntry]);
-  }
-  
-  // Delete a goal 
-  async function deleteGoal(id: string) {
-    const goalRef = doc(db, "goals", id);
-    await deleteDoc(goalRef); 
-  }
-  
-  // Continue?
-  // View a goal
-  async function readGoal() {
-    
   }
 
   // Updates the state containing the user-entered prompt
