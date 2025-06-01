@@ -3,24 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../Navbar";
-import {
+import { 
   collection, 
-  getDocs, 
   addDoc, 
-  deleteDoc, 
-  updateDoc, 
-  doc, 
-  getDoc 
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { useAuth } from "../AuthContext";
-
-// Define the type for a goal entry
-type GoalEntry = {
-  id: string;
-  prompt: string;
-  response: string;
-};
 
 // Component for the chat area
 export default function Chat() {
@@ -30,8 +18,7 @@ export default function Chat() {
 
   // State
   const [formData, setFormData] = useState("");
-  const [response, setResponse] = useState("");
-  const [entries, setEntries] = useState<GoalEntry[]>([]);
+  const [response, setResponse] = useState(""); // Continue: may delete
   const [isLoading, setIsLoading] = useState(false);
   
   // Anticipate to redirect if not authenticated
@@ -40,13 +27,6 @@ export default function Chat() {
       router.push("/login");
     }
   }, [user, router]);
-
-  // Load all entries + document ids into app's state in the first render
-  useEffect(() => {
-    if (prCollection) {
-      fetchEntries();
-    }
-  }, []); 
   
   // Show loading state while checking auth; this will rerender
   if (user === undefined) {
@@ -72,32 +52,10 @@ export default function Chat() {
 
   // Create collection for the database (Prompt-Response Collection)
   const prCollection = collection(db, "users", user!.uid, "goals");
-
-  /**
-   * Fetches all goal entry documents from a particular user,
-   * pairs the fields with the document's id, and stores
-   * them in the state of the component.
-   */
-  const fetchEntries = async () => {
-    try {
-      const querySnapshot = await getDocs(prCollection);
-      const fetchedEntries = querySnapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as GoalEntry[];
-      
-      setEntries(fetchedEntries);
-    } catch (error) {
-      console.error("Error fetching entries: ", error);
-    }
-  };
   
   // Creates a goal entry and adds it to the database and app's state
   async function createGoal(response: string, prompt: string) {
     const newRef = await addDoc(prCollection, { prompt: formData, response });
-
-    // Add entry to state
-    setEntries([...entries, { id: newRef.id, prompt, response } as GoalEntry]);
   }
 
   // Updates the state containing the user-entered prompt
