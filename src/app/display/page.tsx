@@ -1,17 +1,14 @@
-import db from "../firebaseConfig";
-import { collection } from "firebase/firestore";
-
+import Navbar from "../components/Navbar";
+import Overview from "../components/overview";
 /**
- * Displays a particular entry from the database, if the entry is selected.
- * @returns A component that displays a prompt and its corresponding response
+ * @returns A component that displays all entries
  */
-function Display() {
-  // Get collection from database
-  const prCollection = collection(db, "goals");
-
+export default function Display() {
   return (
-    <div>
-      
+    <div className="h-screen">
+      <Navbar />
+      <h1 className="mt-[calc(100vh/8)] text-6xl text-center">Entries</h1>
+      <Overview />
     </div>
   );
 }

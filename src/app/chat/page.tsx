@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Navbar from "../Navbar";
+import Navbar from "../components/Navbar";
 import { 
   collection, 
   addDoc, 
@@ -18,7 +18,6 @@ export default function Chat() {
 
   // State
   const [formData, setFormData] = useState("");
-  const [response, setResponse] = useState(""); // Continue: may delete
   const [isLoading, setIsLoading] = useState(false);
   
   // Anticipate to redirect if not authenticated
@@ -55,7 +54,45 @@ export default function Chat() {
   
   // Creates a goal entry and adds it to the database and app's state
   async function createGoal(response: string, prompt: string) {
-    const newRef = await addDoc(prCollection, { prompt: formData, response });
+    function getMonthWord(mthNum: number): string {
+      switch (mthNum) {
+        case 0: 
+          return "January";
+        case 1:
+          return "February";
+        case 2:
+          return "March";
+        case 3:
+          return "April";
+        case 4:
+          return "May";
+        case 5:
+          return "June";
+        case 6:
+          return "July";
+        case 7:
+          return "August";
+        case 8:
+          return "September";
+        case 9:
+          return "October";
+        case 10:
+          return "November";
+        case 11: 
+          return "December";
+        default:
+          return "MONTH_ERROR"
+      }
+    }
+
+    // Get day, month, and year from current date and time
+    const fullCurrDate = new Date();
+    const dd = fullCurrDate.getDate();
+    const mm = getMonthWord(fullCurrDate.getMonth());
+    const yyyy = String(fullCurrDate.getFullYear());
+    const formattedDate = `${dd} ${mm} ${yyyy}`;
+
+    const newRef = await addDoc(prCollection, { prompt, response, formattedDate });
   }
 
   // Updates the state containing the user-entered prompt
@@ -65,28 +102,26 @@ export default function Chat() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const currFormData = formData;
+    setFormData("");
     setIsLoading(true);
-    setResponse(""); // Clear previous response
-    
+
     try {
       const res = await fetch("/api/gemini", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ message: formData }),
+        body: JSON.stringify({ message: currFormData }),
       });
 
       if (!res.ok) {
         throw new Error("Failed to fetch response");
       }
 
-      const data = await res.json();
-      console.log(data.message); // Print output for testing
-      setResponse(data.message);
-      
       // Add response to database
-      await createGoal(data.message, formData);
+      const data = await res.json();
+      await createGoal(data.message, currFormData);
     } catch (err) {
       console.error("Error during fetch:", err);
     } finally {
@@ -103,6 +138,7 @@ export default function Chat() {
           onSubmit={ handleSubmit }
         >
           <textarea
+            id="prompt"
             name="message"
             placeholder="Enter prompt here"
             className="h-full w-full bg-gray-500/50 rounded-md overflow-auto p-2"
@@ -110,7 +146,7 @@ export default function Chat() {
             value={ formData }
             disabled={ isLoading }
           />
-          <button type="submit" className="">Submit</button>
+          <button type="submit" className="border border-transparent rounded-md hover:border-white hover:border-1">Submit</button>
         </form>
       </section> 
     </div>

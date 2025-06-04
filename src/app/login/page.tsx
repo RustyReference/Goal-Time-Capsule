@@ -8,7 +8,7 @@ import {
   signInWithEmailAndPassword 
 } from "firebase/auth";
 import { auth, db } from "../firebaseConfig";
-import Navbar from "../Navbar";
+import Navbar from "../components/Navbar";
 
 type LogData = {
   email: string,
@@ -48,8 +48,6 @@ export default function Login() {
       console.log("User created!");
     } catch (error: any) {
       switch (error.code) {
-        /*
-        */
         case "auth/email-already-in-use": 
           setLogInErr("Email already in use.");
           break;
@@ -103,6 +101,8 @@ export default function Login() {
     } else {
       await signUp(logForm);
     }
+    
+    router.push("/");
   }
   
   /**
@@ -164,7 +164,7 @@ export default function Login() {
         </div>
         <button 
           type="submit" 
-          className="bg-blue-700 p-2 rounded-md text-center hover:italic cursor-pointer"
+          className="border border-transparent bg-blue-700 p-2 rounded-md text-center hover:border-white hover:border-1 cursor-pointer"
         >
           Submit
         </button>

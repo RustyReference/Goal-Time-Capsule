@@ -1,7 +1,9 @@
+"use client"
+
 import { useRouter } from "next/navigation";
-import { auth } from "./firebaseConfig";
+import { auth } from "../firebaseConfig";
 import { signOut } from "firebase/auth";
-import { useAuth } from "./AuthContext";
+import { useAuth } from "../AuthContext";
 
 export default function Navbar() {
   const user = useAuth();
@@ -31,11 +33,12 @@ export default function Navbar() {
   return (
     <div className="fixed top-0 w-full">
       <div className="flex items-center justify-between mx-10 py-5">
-        <a 
+        <button 
           className="text-4xl mr-0 cursor-pointer"
+          onClick={ () => router.push("/") }
         >
           The Goal Time Capsule
-        </a>
+        </button>
         <ul className="hidden md:flex justify-evenly space-x-20">
           <li>
             <button 
