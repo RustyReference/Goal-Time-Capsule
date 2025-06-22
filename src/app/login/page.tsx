@@ -45,7 +45,8 @@ export default function Login() {
         password
       });
       
-      console.log("User created!");
+      // Redirect to Chat Page
+      router.push("/chat");
     } catch (error: any) {
       switch (error.code) {
         case "auth/email-already-in-use": 
@@ -76,13 +77,14 @@ export default function Login() {
       const signInCreds = await signInWithEmailAndPassword(auth, email, password);
       const user = signInCreds.user;
       
+      // Redirect to chat page
       router.push("/chat");
-      console.log("Signed in as: " + user.email);
     } catch (error: any) {
       {error === "auth/invald-credential" 
         ? setLogInErr("Email and password do not match.")
         : setLogInErr("Failed to sign in: " + error.code)}
     }
+    
   }
 
   /**
@@ -101,8 +103,6 @@ export default function Login() {
     } else {
       await signUp(logForm);
     }
-    
-    router.push("/");
   }
   
   /**

@@ -1,0 +1,35 @@
+.menu_items {
+  display: none;
+  position: absolute;
+  background-color: #171717;
+  height: auto;
+  width: auto;
+  box-shadow: -5px 5px 5px white;
+  z-index: 1;
+}
+
+.menu:hover label {
+  font-style: italic;
+}
+
+.menu:hover .menu_items {
+  display: block;
+}
+
+.menu_items:hover button {
+  background-color: #181a18;
+}
+
+.menu_item {
+  color: white;
+  padding: 4px 4px;
+  display: block;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.menu_item:hover {
+  border: 1px solid gray;
+}

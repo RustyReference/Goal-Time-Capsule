@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { auth } from "../firebaseConfig";
 import { signOut } from "firebase/auth";
 import { useAuth } from "../AuthContext";
+import Menu from "./Menu"
 
 export default function Navbar() {
   const user = useAuth();
@@ -57,11 +58,7 @@ export default function Navbar() {
             </button>
           </li>
           <li>
-            <button 
-              className="hover:italic cursor-pointer"
-            >
-              Menu
-            </button>
+            <Menu />
           </li>
         </ul>
       </div>
