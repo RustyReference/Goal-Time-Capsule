@@ -1,11 +1,11 @@
 import React from "react";
-import { GoalEntry } from "./overview"
+import { GoalEntry } from "./overview";
 
 type DisplayItemProps = {
   id: string, 
   formattedDate: string, 
   prompt: string
-  onContextMenu: (e: React.MouseEvent<HTMLDivElement>, entry: GoalEntry) => void
+  onContextMenu: (e: React.MouseEvent<HTMLDivElement>) => void
 }
 
 export default function DisplayItem({

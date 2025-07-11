@@ -7,7 +7,7 @@ export async function POST(req: Request) {
     console.log(`Message: ${message}`);
     
     if (!process.env.API_KEY) {
-      throw new Error("GEMINI_API_KEY is not set");
+      throw new Error("API_KEY is not set");
     }
 
     const genAI = new GoogleGenerativeAI(process.env.API_KEY);

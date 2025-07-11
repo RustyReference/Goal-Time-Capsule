@@ -4,11 +4,7 @@ import {
   collection, 
   getDocs, 
   deleteDoc, 
-  doc, 
-  getDoc, 
-  QuerySnapshot,
-  DocumentData,
-  DocumentReference
+  doc
 } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -80,7 +76,8 @@ export default function Overview() {
    */
   function handleRightClick(
     e: React.MouseEvent<HTMLDivElement>, 
-    entry: GoalEntry) {
+    entry: GoalEntry
+  ) {
     e.preventDefault();
     setClicked(true);
     setPoints({ x: e.pageX, y: e.pageY });
@@ -136,24 +133,24 @@ export default function Overview() {
               id={ entry.id }
               formattedDate={ entry.formattedDate }
               prompt={ entry.prompt }
-              onContextMenu={ handleRightClick }
+              onContextMenu={ (e) => handleRightClick(e, entry) }
             />
           )) 
         : <div>No entries found </div>
       }
       {clicked && (
         <div 
-          className="fixed bg-slate-600 border border-solid"
+          className="fixed bg-slate-800 border border-solid rounded-md"
           style={{top: points.y, left: points.x}}
         >
           <button 
-            className="w-full rounded-md hover:bg-gray-600"
+            className={`w-full rounded-md hover:bg-gray-600 border-gray-50`}
             onClick={ handleView }
           >
             View
           </button>
           <button 
-            className="w-full rounded-md hover:bg-gray-600"
+            className={`w-full rounded-md hover:bg-gray-600 border-gray-50`}
             onClick={ handleDelete }
           >
             Delete
