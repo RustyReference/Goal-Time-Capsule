@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { useAuth } from "../../AuthContext";
 import { db } from "../../firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, Timestamp } from "firebase/firestore";
 import ReactMarkdown from "react-markdown";
+import { fdatasync } from "fs";
 
 export default function ShowEntry() {
   const [prompt, setPrompt] = useState("");
@@ -38,7 +39,7 @@ export default function ShowEntry() {
     
     const entry = docSnap.data();
       
-    // Set the response
+    // Set the information
     if (entry === undefined) {
       setPrompt("Prompt for this entry is undefined.");
       setResponse("Response for this entry is undefined.");
@@ -46,9 +47,56 @@ export default function ShowEntry() {
     } else {
       setPrompt(entry.prompt);
       setResponse(entry.response);    
-      setFormattedDate(entry.formattedDate);
+      let timeStampString = getDateString(entry.formattedDate as Timestamp);
+      setFormattedDate(timeStampString);
     }
     setLoading(false);
+  }
+
+  function getMonthWord(mthNum: number): string {
+    switch (mthNum) {
+      case 0: 
+        return "January";
+      case 1:
+        return "February";
+      case 2:
+        return "March";
+      case 3:
+        return "April";
+      case 4:
+        return "May";
+      case 5:
+        return "June";
+      case 6:
+        return "July";
+      case 7:
+        return "August";
+      case 8:
+        return "September";
+      case 9:
+        return "October";
+      case 10:
+        return "November";
+      case 11: 
+        return "December";
+      default:
+        return "MONTH_ERROR"
+    }
+  }
+
+  function getDateString(date: Timestamp | undefined): string {
+    if (date == undefined) {
+      return "N/A";
+    }
+
+    console.log(date, typeof date);
+    
+    const dd = date.toDate().getDate();
+    const mm = getMonthWord(date.toDate().getMonth());
+    const yyyy = String(date.toDate().getFullYear());
+    const formattedDate = `${dd} ${mm} ${yyyy}`;
+    
+    return formattedDate;
   }
 
   return (

@@ -9,6 +9,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebaseConfig";
 import { useAuth } from "../AuthContext";
+import DateSelector from "../components/DateSelector";
 
 // Component for the chat area
 export default function Chat() {
@@ -19,6 +20,8 @@ export default function Chat() {
   // State
   const [formData, setFormData] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [schRelDate, setDate]     // Scheduled release date
+    = useState<Date | undefined>();
   
   // Anticipate to redirect if not authenticated
   useEffect(() => {
@@ -54,45 +57,17 @@ export default function Chat() {
   
   // Creates a goal entry and adds it to the database and app's state
   async function createGoal(response: string, prompt: string) {
-    function getMonthWord(mthNum: number): string {
-      switch (mthNum) {
-        case 0: 
-          return "January";
-        case 1:
-          return "February";
-        case 2:
-          return "March";
-        case 3:
-          return "April";
-        case 4:
-          return "May";
-        case 5:
-          return "June";
-        case 6:
-          return "July";
-        case 7:
-          return "August";
-        case 8:
-          return "September";
-        case 9:
-          return "October";
-        case 10:
-          return "November";
-        case 11: 
-          return "December";
-        default:
-          return "MONTH_ERROR"
-      }
-    }
+    const formattedDate = new Date();
+    const releaseDate = schRelDate;
 
-    // Get day, month, and year from current date and time
-    const fullCurrDate = new Date();
-    const dd = fullCurrDate.getDate();
-    const mm = getMonthWord(fullCurrDate.getMonth());
-    const yyyy = String(fullCurrDate.getFullYear());
-    const formattedDate = `${dd} ${mm} ${yyyy}`;
-
-    const newRef = await addDoc(prCollection, { prompt, response, formattedDate });
+    // NOTE: the dates will be formatted when the goals are displayed in the 
+    // overview.
+    const newRef = await addDoc(prCollection, { 
+      prompt, 
+      response, 
+      formattedDate, 
+      releaseDate
+    });
   }
 
   // Updates the state containing the user-entered prompt
@@ -102,6 +77,17 @@ export default function Chat() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    
+    if (schRelDate === undefined) {
+      console.log("Must select date.");
+      return;
+    }
+
+    if (schRelDate < new Date()) {
+      console.log("Date must be after today.");
+      return;
+    }
+
     const currFormData = formData;
     setFormData("");
     setIsLoading(true);
@@ -131,22 +117,31 @@ export default function Chat() {
 
   return (
     <div>
-      <section className="flex h-screen w-screen gap-10 p-10 items-center justify-center">
+      <section className="flex h-screen w-screen p-10 items-center justify-center">
         <Navbar />
         <form 
-          className="flex flex-col grow h-1/5 1/2 my-auto bg-gray-500/50 rounded-md" 
-          onSubmit={ handleSubmit }
+          className="flex flex-col gap-5 grow h-auto w-1/2 my-auto" 
+          onSubmit={handleSubmit}
         >
+          <DateSelector selected={schRelDate} setSelected={setDate} />
           <textarea
             id="prompt"
             name="message"
             placeholder="Enter prompt here"
-            className="h-full w-full bg-gray-500/50 rounded-md overflow-auto p-2"
-            onChange={ handleChange }
-            value={ formData }
-            disabled={ isLoading }
+            className="w-full bg-gray-500/50 rounded-md overflow-auto p-2"
+            onChange={handleChange}
+            value={formData}
+            disabled={isLoading}
           />
-          <button type="submit" className="border border-transparent rounded-md hover:border-white hover:border-1">Submit</button>
+          <button 
+            type="submit" 
+            className={`
+              border border-transparent rounded-md 
+              bg-slate-500 hover:border-white hover:border-1
+            `}
+          >
+            Submit
+          </button>
         </form>
       </section> 
     </div>

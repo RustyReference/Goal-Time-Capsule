@@ -4,7 +4,8 @@ import {
   collection, 
   getDocs, 
   deleteDoc, 
-  doc
+  doc,
+  Timestamp
 } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -17,7 +18,8 @@ export type GoalEntry = {
   id: string;
   prompt: string;
   response: string;
-  formattedDate: string;
+  formattedDate: Timestamp;
+  releaseDate: Date
 };
 
 /**
@@ -132,6 +134,7 @@ export default function Overview() {
               key={ entry.id }
               id={ entry.id }
               formattedDate={ entry.formattedDate }
+              schDate={ entry.releaseDate }
               prompt={ entry.prompt }
               onContextMenu={ (e) => handleRightClick(e, entry) }
             />
